@@ -1,0 +1,95 @@
+1. Auth Module
+
+Handles JWT login/registration.
+
+Provides guards (JwtAuthGuard, RolesGuard, PermissionsGuard).
+
+Connects with users, roles, permissions, user_roles, etc.
+
+2. Users Module
+
+CRUD for users.
+
+Connects with Auth for profile queries.
+
+Base table for both staff and passengers.
+
+3. Roles & Permissions Module (RBAC)
+
+Manage roles, permissions, mappings (role_permissions, user_roles, user_permissions).
+
+Only Admins (or Super Admin) can assign/revoke roles and permissions.
+
+4. Airports Module
+
+Manage airports (create, update, delete).
+
+Multi-airport support (bonus feature).
+
+5. Airlines Module
+
+Manage airlines.
+
+Link with flights.
+
+6. Flights Module
+
+CRUD for flights.
+
+Filtering/pagination (departure time, destination, airline).
+
+Manages flights, flight_status_history.
+
+Publishes GraphQL subscriptions for status updates.
+
+7. Passengers Module
+
+Manages passengers (profile, nationality, passport number).
+
+Each passenger is tied to a user.
+
+8. Bookings Module
+
+Handles bookings.
+
+Flight seat allocation (enforce no duplicates).
+
+Passenger checks their bookings and flight details.
+
+9. Baggage Module
+
+Manages baggage.
+
+Link baggage tags to bookings.
+
+Track status (in_transit, loaded, etc.).
+
+10. Staff Module
+
+Manages staff profiles (staff).
+
+Staff roles (staff_roles_domain).
+
+Assign staff to flights (staff_flights).
+
+Staff can see/manage only their assigned flights.
+
+11. Notifications Module
+
+Manages notifications (queued → sent → failed).
+
+Integrates with BullMQ (for background jobs like email/SMS).
+
+Triggered when:
+
+Booking is confirmed.
+
+Flight is delayed/canceled.
+
+12. Operations Module
+
+Manages flight operations (status tracking).
+
+Adds entries to flight_status_history.
+
+Exposes GraphQL subscriptions for real-time updates.
