@@ -8,13 +8,19 @@ import { UsersModule } from 'src/modules/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [
+  imports: [ConfigModule,
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '10d' }, //TODO change this later
+    ConfigModule, // already global if you used isGlobal: true
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '10d' },
+      }),
     }),
     TypeOrmModule.forFeature([Permission, Role]),
     UsersModule,
@@ -22,5 +28,6 @@ import { AuthController } from './auth.controller';
   ],
   providers: [AuthService, AuthResolver],
   controllers: [AuthController],
+  
 })
 export class AuthModule {}

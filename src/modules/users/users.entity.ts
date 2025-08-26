@@ -17,6 +17,7 @@ import { Staff } from 'src/modules/staff/staff.entity';
 
 @ObjectType()
 @Entity('users')
+
 export class User {
   @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from './users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
@@ -11,7 +15,7 @@ export class UsersService {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
 
-    @InjectRepository(Role) 
+    @InjectRepository(Role)
     private readonly roleRepo: Repository<Role>,
   ) {}
 
@@ -30,22 +34,23 @@ export class UsersService {
     return Array.from(new Set([...rolePermissions, ...directPermissions]));
   }
 
-
+  ///////////////////////
 
   async findByEmail(email: string) {
     return this.userRepo.findOneBy({ email });
   }
 
-
+  /////////////
   async create(data: {
     name: string;
     email: string;
     password: string;
-    roleNames?: string[]; 
-    createdById?: string; 
-
+    roleNames?: string[];
+    createdById?: string;
   }): Promise<User> {
-    const existing = await this.userRepo.findOne({ where: { email: data.email } });
+    const existing = await this.userRepo.findOne({
+      where: { email: data.email },
+    });
     if (existing) {
       throw new BadRequestException('Email already in use');
     }
@@ -56,7 +61,9 @@ export class UsersService {
     if (data.roleNames && data.roleNames.length > 0) {
       roles = await this.roleRepo.find({ where: { name: In(data.roleNames) } });
     } else {
-      const defaultRole = await this.roleRepo.findOne({ where: { name: 'user' } });
+      const defaultRole = await this.roleRepo.findOne({
+        where: { name: 'user' },
+      });
       if (defaultRole) roles = [defaultRole];
     }
 
@@ -64,10 +71,17 @@ export class UsersService {
       name: data.name,
       email: data.email,
       password: hashedPassword,
-      roles,
-      createdBy: data.createdById ? { id: data.createdById } as User : undefined,
+      roles: roles,
+      createdBy: data.createdById
+        ? ({ id: data.createdById } as User)
+        : undefined,
     });
 
     return this.userRepo.save(user);
+  }
+
+  //////////////////
+  findById(id: string) {
+    return this.userRepo.findOne({where: {id} , relations: ['roles']});
   }
 }
