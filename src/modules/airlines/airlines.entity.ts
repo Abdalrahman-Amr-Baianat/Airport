@@ -7,8 +7,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Flight } from 'src/flights/flights.entity';
-import { Airport } from 'src/airports/airports.entity';
+import { Flight } from 'src/modules/flights/flights.entity';
+import { Airport } from 'src/modules/airports/airports.entity';
 
 @ObjectType()
 @Entity('airlines')
@@ -25,7 +25,6 @@ export class Airline {
   @Column()
   name: string;
 
-  // --- Reverse relation to flights ---
   @Field(() => [Flight], { nullable: true })
   @OneToMany(() => Flight, (flight) => flight.airline)
   flights?: Flight[];

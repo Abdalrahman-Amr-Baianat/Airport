@@ -1,7 +1,7 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { Flight } from 'src/flights/flights.entity';
-import { Airline } from 'src/airlines/airlines.entity';
+import { Flight } from 'src/modules/flights/flights.entity';
+import { Airline } from 'src/modules/airlines/airlines.entity';
 
 @ObjectType()
 @Entity('airports')
@@ -30,12 +30,10 @@ export class Airport {
   @Column()
   timezone: string;
 
-  // --- Reverse relation to flights (departures) ---
   @Field(() => [Flight], { nullable: true })
   @OneToMany(() => Flight, (flight) => flight.departureAirport)
   departureFlights?: Flight[];
 
-  // --- Reverse relation to flights (arrivals) ---
   @Field(() => [Flight], { nullable: true })
   @OneToMany(() => Flight, (flight) => flight.destinationAirport)
   arrivalFlights?: Flight[];

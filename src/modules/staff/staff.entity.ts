@@ -8,7 +8,7 @@ import {
   ManyToOne,
   OneToMany,
 } from 'typeorm';
-import { User } from 'src/users/users.entity';
+import { User } from 'src/modules/users/users.entity';
 import { StaffRoleDomain } from './staff_roles_domain.entity';
 import { StaffFlight } from './staff_flights.entity';
 
@@ -44,6 +44,5 @@ export class Staff {
   staffRole: StaffRoleDomain;
 
   @OneToMany(() => StaffFlight, (staffFlight) => staffFlight.staff)
-staffFlights?: StaffFlight[];
-
+  staffFlights?: StaffFlight[];
 }

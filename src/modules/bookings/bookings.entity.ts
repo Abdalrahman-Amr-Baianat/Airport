@@ -10,10 +10,10 @@ import {
   Unique,
 } from 'typeorm';
 
-import { Passenger } from 'src/passengers/passengers.entity';
-import { Baggage } from 'src/baggage/baggage.entity';
-import { Flight } from 'src/flights/flights.entity';
-import { Notification } from 'src/notifications/notifications.entity';
+import { Passenger } from 'src/modules/passengers/passengers.entity';
+import { Baggage } from 'src/modules/baggage/baggage.entity';
+import { Flight } from 'src/modules/flights/flights.entity';
+import { Notification } from 'src/modules/notifications/notifications.entity';
 
 // --- Enum for booking status ---
 export enum BookingStatus {
@@ -29,14 +29,13 @@ registerEnumType(BookingStatus, {
 
 @ObjectType()
 @Entity('bookings')
-@Unique('UQ_flight_seat', ['flight', 'seatNumber']) // prevent duplicate seat assignment
-@Unique('UQ_passenger_flight', ['passenger', 'flight']) // one active booking per passenger/flight
+@Unique('UQ_flight_seat', ['flight', 'seatNumber'])
+@Unique('UQ_passenger_flight', ['passenger', 'flight'])
 export class Booking {
   @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  // --- Relations ---
   @Field(() => Flight)
   @ManyToOne(() => Flight, (flight) => flight.bookings, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'flight_id' })
@@ -61,13 +60,10 @@ export class Booking {
   @CreateDateColumn({ name: 'booked_at' })
   bookedAt: Date;
 
-  // --- Reverse relation to baggage ---
   @Field(() => [Baggage], { nullable: true })
   @OneToMany(() => Baggage, (baggage) => baggage.booking)
   baggage?: Baggage[];
 
-
   @OneToMany(() => Notification, (notification) => notification.booking)
-notifications?: Notification[];
-
+  notifications?: Notification[];
 }

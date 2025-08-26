@@ -1,10 +1,19 @@
-import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, ManyToMany, JoinTable, OneToOne } from 'typeorm';
-import { Permission } from 'src/auth/permissions.entity';
-import { Role } from 'src/auth/roles.entity';
-import { Notification } from 'src/notifications/notifications.entity';
-import { Staff } from 'src/staff/staff.entity';
-
+import { ObjectType, Field, ID, HideField } from '@nestjs/graphql';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+  ManyToMany,
+  JoinTable,
+  OneToOne,
+} from 'typeorm';
+import { Permission } from '../auth/permissions.entity';
+import { Role } from '../auth/roles.entity';
+import { Notification } from 'src/modules/notifications/notifications.entity';
+import { Staff } from 'src/modules/staff/staff.entity';
 
 @ObjectType()
 @Entity('users')
@@ -20,11 +29,11 @@ export class User {
   @Field()
   @Column({ type: 'varchar', unique: true })
   email: string;
-
+  @HideField()
   @Column({ type: 'varchar' })
   password: string;
 
-  // --- Self relation (who created this user) ---
+  //  (who created this user)
   @Field(() => User, { nullable: true })
   @ManyToOne(() => User, (user) => user.createdUsers, {
     nullable: true,
@@ -37,19 +46,16 @@ export class User {
   @OneToMany(() => User, (user) => user.createdBy)
   createdUsers?: User[];
 
-  // --- Permissions relation ---
   @Field(() => [Permission], { nullable: true })
-  @ManyToMany(() => Permission, (permission) => permission.users, { cascade: true })
+  @ManyToMany(() => Permission, (permission) => permission.users, {
+    cascade: true,
+  })
   @JoinTable({
-    name: 'user_permissions', // custom join table
+    name: 'user_permissions',
     joinColumn: { name: 'user_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
   })
   permissions?: Permission[];
-
-
-
-
 
   @Field(() => [Role], { nullable: true })
   @ManyToMany(() => Role, (role) => role.users, { cascade: true })
@@ -60,13 +66,9 @@ export class User {
   })
   roles?: Role[];
 
-
   @OneToMany(() => Notification, (notification) => notification.user)
-notifications?: Notification[];
+  notifications?: Notification[];
 
-
-
-@OneToOne(() => Staff, (staff) => staff.user)
-staff?: Staff;
-
+  @OneToOne(() => Staff, (staff) => staff.user)
+  staff?: Staff;
 }

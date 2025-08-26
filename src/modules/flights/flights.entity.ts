@@ -8,10 +8,10 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { Airline } from 'src/airlines/airlines.entity';
-import { Airport } from 'src/airports/airports.entity';
-import { Booking } from 'src/bookings/bookings.entity';
-import { StaffFlight } from 'src/staff/staff_flights.entity';
+import { Airline } from 'src/modules/airlines/airlines.entity';
+import { Airport } from 'src/modules/airports/airports.entity';
+import { Booking } from 'src/modules/bookings/bookings.entity';
+import { StaffFlight } from 'src/modules/staff/staff_flights.entity';
 import { FlightStatusHistory } from './flight_status_history.entity';
 // --- Enum for flight status ---
 export enum FlightStatus {

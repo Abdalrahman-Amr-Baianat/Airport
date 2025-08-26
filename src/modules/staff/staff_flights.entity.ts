@@ -9,7 +9,7 @@ import {
   Index,
 } from 'typeorm';
 import { Staff } from './staff.entity';
-import { Flight } from 'src/flights/flights.entity';
+import { Flight } from 'src/modules/flights/flights.entity';
 
 @ObjectType()
 @Entity('staff_flights')
@@ -22,13 +22,17 @@ export class StaffFlight {
 
   // --- Staff relation ---
   @Field(() => Staff)
-  @ManyToOne(() => Staff, (staff) => staff.staffFlights, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Staff, (staff) => staff.staffFlights, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'staff_id' })
   staff: Staff;
 
   // --- Flight relation ---
   @Field(() => Flight)
-  @ManyToOne(() => Flight, (flight) => flight.staffFlights, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Flight, (flight) => flight.staffFlights, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'flight_id' })
   flight: Flight;
 

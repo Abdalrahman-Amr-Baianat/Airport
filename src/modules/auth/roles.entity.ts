@@ -9,8 +9,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Permission } from './permissions.entity';
-import { User } from 'src/users/users.entity';
-
+import { User } from 'src/modules/users/users.entity';
 
 @ObjectType()
 @Entity('roles')
@@ -23,13 +22,11 @@ export class Role {
   @Column({ type: 'varchar', unique: true })
   name: string;
 
-  // --- Who created this role ---
   @Field(() => User, { nullable: true })
   @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'created_by' })
   createdBy?: User;
 
-  // --- Permissions relation ---
   @Field(() => [Permission], { nullable: true })
   @ManyToMany(() => Permission, (permission) => permission.roles, {
     cascade: true,
@@ -41,7 +38,6 @@ export class Role {
   })
   permissions?: Permission[];
 
-  // --- Users relation (via user_roles) ---
   @Field(() => [User], { nullable: true })
   @ManyToMany(() => User, (user) => user.roles)
   users?: User[];

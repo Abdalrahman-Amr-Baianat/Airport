@@ -7,8 +7,8 @@ import {
   JoinColumn,
   CreateDateColumn,
 } from 'typeorm';
-import { User } from 'src/users/users.entity';
-import { Booking } from 'src/bookings/bookings.entity';
+import { User } from 'src/modules/users/users.entity';
+import { Booking } from 'src/modules/bookings/bookings.entity';
 
 @ObjectType()
 @Entity('notifications')

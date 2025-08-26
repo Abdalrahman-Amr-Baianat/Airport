@@ -1,4 +1,10 @@
-import { ObjectType, Field, ID, Float, registerEnumType } from '@nestjs/graphql';
+import {
+  ObjectType,
+  Field,
+  ID,
+  Float,
+  registerEnumType,
+} from '@nestjs/graphql';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -6,9 +12,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Booking } from 'src/bookings/bookings.entity';
+import { Booking } from 'src/modules/bookings/bookings.entity';
 
-// --- Enum for baggage status ---
 export enum BaggageStatus {
   IN_TRANSIT = 'in_transit',
   LOADED = 'loaded',
@@ -28,9 +33,10 @@ export class Baggage {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  // --- Booking relation ---
   @Field(() => Booking)
-  @ManyToOne(() => Booking, (booking) => booking.baggage, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Booking, (booking) => booking.baggage, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'booking_id' })
   booking: Booking;
 
@@ -48,5 +54,5 @@ export class Baggage {
 
   @Field({ nullable: true })
   @Column({ type: 'varchar', nullable: true })
-  lastSeenLocation?: string; // e.g., airport code
+  lastSeenLocation?: string;
 }
