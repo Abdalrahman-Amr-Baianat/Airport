@@ -9,11 +9,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
-  imports: [ConfigModule,
-    PassportModule,
-    ConfigModule, // already global if you used isGlobal: true
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }), 
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -24,10 +25,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
     TypeOrmModule.forFeature([Permission, Role]),
     UsersModule,
-    JwtModule,
   ],
-  providers: [AuthService, AuthResolver],
+  providers: [AuthService, AuthResolver, JwtStrategy],
   controllers: [AuthController],
-  
+  exports: [AuthService], 
 })
 export class AuthModule {}
