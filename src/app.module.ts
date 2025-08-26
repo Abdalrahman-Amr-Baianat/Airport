@@ -14,9 +14,18 @@ import { StaffModule } from './staff/staff.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { OperationsModule } from './operations/operations.module';
 import { databaseConfig } from './Util/database.config';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { AuthResolver } from './auth/auth.resolver';
+import { AppResolver } from './app/app.resolver';
 
 @Module({
-  imports: [
+  imports: [GraphQLModule.forRoot<ApolloDriverConfig>({
+    driver: ApolloDriver,
+    playground: true,
+    graphiql: true,
+    autoSchemaFile: true
+  }),
     databaseConfig,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -34,6 +43,6 @@ import { databaseConfig } from './Util/database.config';
     OperationsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,  AppResolver],
 })
 export class AppModule {}
