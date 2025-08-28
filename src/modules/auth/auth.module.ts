@@ -4,16 +4,21 @@ import { AuthResolver } from './auth.resolver';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from '../users/users.module';
+import { Otp } from './entities/otps.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { EmailsModule } from '../emails/emails.module';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Otp]),
+    EmailsModule,
     UsersModule,
     UsersModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '10d' },
+        signOptions: { expiresIn: '10d' }, //TODO decrease
         global: true,
       }),
     }),

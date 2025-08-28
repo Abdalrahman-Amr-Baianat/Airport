@@ -6,7 +6,7 @@ import {
 import { User } from './users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { Role } from '../auth/roles.entity';
+import { Role } from '../auth/entities/roles.entity';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -29,6 +29,7 @@ export class UsersService {
   }
 
   /////////////
+
   async create(data: {
     name: string;
     email: string;

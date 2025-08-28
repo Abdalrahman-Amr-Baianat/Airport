@@ -10,9 +10,10 @@ import {
   JoinTable,
   OneToOne,
 } from 'typeorm';
-import { Role } from '../auth/roles.entity';
+import { Role } from '../auth/entities/roles.entity';
 import { Notification } from 'src/modules/notifications/notifications.entity';
 import { Staff } from 'src/modules/staff/staff.entity';
+import { Otp } from '../auth/entities/otps.entity';
 
 @ObjectType()
 @Entity('users')
@@ -29,7 +30,7 @@ export class User {
   @Column({ type: 'varchar', unique: true })
   email: string;
 
-  @Column({ nullable: false, default: false }) 
+  @Column({ nullable: false, default: false })
   isVerified: boolean;
 
   @HideField()
@@ -60,6 +61,9 @@ export class User {
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications?: Notification[];
+
+  @OneToMany(() => Otp, (otp) => otp.user)
+  otps?: Otp[];
 
   @OneToOne(() => Staff, (staff) => staff.user)
   staff?: Staff;

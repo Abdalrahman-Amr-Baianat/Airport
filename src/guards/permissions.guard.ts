@@ -24,7 +24,7 @@ export class PermissionsGuard implements CanActivate {
     if (!user) return false;
 
     const userPermissions: PermissionEnum[] =
-      user.roles?.flatMap((role) => role.permissions || []) || [];
+      user.roles?.flatMap((role) => role.permissions || []) || [];  //TODO FLAT MAP  and MAP
 
     return requiredPermissions.every((perm) => userPermissions.includes(perm));
   }

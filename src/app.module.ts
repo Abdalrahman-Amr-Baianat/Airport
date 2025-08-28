@@ -18,7 +18,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppResolver } from './app/app.resolver';
 import { GlobalModule } from './modules/global/global.module';
-
+import { EmailsModule } from './modules/emails/emails.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -43,6 +43,7 @@ import { GlobalModule } from './modules/global/global.module';
     StaffModule,
     NotificationsModule,
     OperationsModule,
+    EmailsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppResolver],

@@ -7,9 +7,11 @@ import { RegisterInput } from 'src/dtos/register.input';
 import { User } from '../users/users.entity';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/jwt-auth.guard';
-import { Role } from './roles.entity';
+import { Role } from './entities/roles.entity';
 import { AdminService } from '../users/admin/admin.service';
 import { CreateRoleInput } from 'src/dtos/create-role.input';
+import { OtpUseCaseEnum } from 'src/enums/otp-usecase.enum';
+import { VerifyOtpInput } from 'src/dtos/virefy-account-otp.input';
 
 @Resolver()
 export class AuthResolver {
@@ -43,6 +45,7 @@ export class AuthResolver {
     console.log('Current user:', context.req.user);
     return `Hello ${context.req.user.email}`;
   }
+
   @UseGuards(AuthGuard)
   @Mutation(() => Role)
   async createNewRole(
@@ -53,6 +56,28 @@ export class AuthResolver {
       data.name,
       context.req.user.id,
       data.permissions,
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => String)
+  verifyAccountSendOtp(@Context() context) {
+    this.authService.verifyAccountSendOtp(context.req.user.id);
+    // console.log('Current user:', context.req.user);
+    return `Hello ${context.req.user.email}`;
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => User)
+  async verifyAccountVerifyOtp(
+    @Context() context: any,
+    @Args('input') data: VerifyOtpInput,
+  ): Promise<User> {
+    const userId = context.req.user.id; 
+    return this.authService.verifyAccountVerifyOtp(
+      userId,
+      data.otp,//TODO ERRRRROOOORRR HERE
+      OtpUseCaseEnum.VERIFY_EMAIL,
     );
   }
 }

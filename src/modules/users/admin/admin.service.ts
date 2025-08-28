@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from 'src/modules/auth/roles.entity';
+import { Role } from 'src/modules/auth/entities/roles.entity';
 import { In, Repository } from 'typeorm';
 import { User } from '../users.entity';
 
@@ -76,6 +76,7 @@ export class AdminService {
     });
 
     if (!existingSuperAdmin) {
+      //TODO add all permissions
       const superAdmin = this.userService.create({
         name: 'SUPER_ADMIN',
         email:
@@ -91,4 +92,3 @@ export class AdminService {
     }
   }
 }
-

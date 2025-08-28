@@ -25,6 +25,7 @@ export class Staff {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
+  
   user: User;
 
   @Field()

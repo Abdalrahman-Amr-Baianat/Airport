@@ -17,7 +17,6 @@ export class Notification {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  // Relation to User (nullable)
   @Field(() => User, { nullable: true })
   @ManyToOne(() => User, (user) => user.notifications, {
     nullable: true,
@@ -26,7 +25,6 @@ export class Notification {
   @JoinColumn({ name: 'user_id' })
   user?: User;
 
-  // Relation to Booking (nullable, contextual)
   @Field(() => Booking, { nullable: true })
   @ManyToOne(() => Booking, (booking) => booking.notifications, {
     nullable: true,
@@ -37,7 +35,7 @@ export class Notification {
 
   @Field()
   @Column({ type: 'varchar' })
-  channel: string; // email | sms | push
+  channel: string; 
 
   @Field({ nullable: true })
   @Column({ type: 'varchar', nullable: true })
@@ -49,7 +47,7 @@ export class Notification {
 
   @Field()
   @Column({ type: 'varchar' })
-  status: string; // queued | sent | failed
+  status: string; 
 
   @Field({ nullable: true })
   @Column({ type: 'timestamp', nullable: true })
