@@ -29,7 +29,7 @@ export class Role {
 
   @Field(() => [Permission], { nullable: true })
   @ManyToMany(() => Permission, (permission) => permission.roles, {
-    cascade: true,
+    
   })
   @JoinTable({
     name: 'role_permissions',

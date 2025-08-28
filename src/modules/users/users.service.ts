@@ -37,7 +37,10 @@ export class UsersService {
   ///////////////////////
 
   async findByEmail(email: string) {
-    return this.userRepo.findOneBy({ email });
+    return this.userRepo.findOne({
+      where: { email },
+      relations: ['roles', 'permissions'],
+    });
   }
 
   /////////////
@@ -47,6 +50,7 @@ export class UsersService {
     password: string;
     roleNames?: string[];
     createdById?: string;
+    isVerified?: boolean;
   }): Promise<User> {
     const existing = await this.userRepo.findOne({
       where: { email: data.email },
@@ -75,6 +79,7 @@ export class UsersService {
       createdBy: data.createdById
         ? ({ id: data.createdById } as User)
         : undefined,
+      isVerified: data.isVerified,
     });
 
     return this.userRepo.save(user);
@@ -82,6 +87,9 @@ export class UsersService {
 
   //////////////////
   findById(id: string) {
-    return this.userRepo.findOne({where: {id} , relations: ['roles']});
+    return this.userRepo.findOne({
+      where: { id },
+      relations: ['roles', 'permissions'],
+    });
   }
 }

@@ -17,7 +17,6 @@ import { Staff } from 'src/modules/staff/staff.entity';
 
 @ObjectType()
 @Entity('users')
-
 export class User {
   @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
@@ -30,6 +29,10 @@ export class User {
   @Field()
   @Column({ type: 'varchar', unique: true })
   email: string;
+
+  @Column({ nullable: true, default: false }) // TODO Set nullable false
+  isVerified: boolean;
+
   @HideField()
   @Column({ type: 'varchar' })
   password: string;

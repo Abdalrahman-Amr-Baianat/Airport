@@ -1,5 +1,4 @@
 import {
-  ConflictException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -8,7 +7,6 @@ import * as bcrypt from 'bcrypt';
 import { RegisterInput } from 'src/dtos/register.input';
 import { UsersService } from 'src/modules/users/users.service';
 import { User } from '../users/users.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +25,10 @@ export class AuthService {
 
   async login(user: User) {
     return {
-      access_token: this.jwtService.sign({...user}),
+      access_token: this.jwtService.signAsync({
+        id: user.id,
+        
+      }),
     };
   }
 

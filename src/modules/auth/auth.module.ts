@@ -1,33 +1,24 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Permission } from './permissions.entity';
-import { Role } from './roles.entity';
+import { Global, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthResolver } from './auth.resolver';
-import { UsersModule } from 'src/modules/users/users.module';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
-import { AuthController } from './auth.controller';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtStrategy } from './jwt.strategy';
+import { UsersService } from '../users/users.service';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), 
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    UsersModule,
     JwtModule.registerAsync({
-      imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: { expiresIn: '10d' },
+        global: true,
       }),
     }),
-    TypeOrmModule.forFeature([Permission, Role]),
-    UsersModule,
   ],
-  providers: [AuthService, AuthResolver, JwtStrategy],
-  controllers: [AuthController],
-  exports: [AuthService], 
+  providers: [AuthService, AuthResolver],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

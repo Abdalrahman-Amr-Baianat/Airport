@@ -17,6 +17,7 @@ import { databaseConfig } from './util/database.config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppResolver } from './app/app.resolver';
+import { GlobalModule } from './modules/global/global.module';
 
 @Module({
   imports: [
@@ -30,9 +31,7 @@ import { AppResolver } from './app/app.resolver';
       autoSchemaFile: true,
     }),
     databaseConfig,
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    GlobalModule,
     AuthModule,
     UsersModule,
     AirportsModule,
