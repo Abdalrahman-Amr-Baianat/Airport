@@ -1,23 +1,23 @@
 import { UseGuards } from '@nestjs/common';
 import { Resolver, Query, Context } from '@nestjs/graphql';
-import { Roles } from 'src/decorators/roles.decorator';
+import { HasPermissions } from 'src/decorators/permissions.decorator';
+import { PermissionEnum } from 'src/enums/permission.enum';
 import { AuthGuard } from 'src/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/guards/roles.guard';
-@UseGuards(RolesGuard)
+import { PermissionsGuard } from 'src/guards/permissions.guard';
 @UseGuards(AuthGuard)
 @Resolver()
 export class AppResolver {
   @Query(() => String, { name: 'test' })
   hello() {
-    console.log
+    console.log;
     return 'Hello World!';
-
   }
 
-@Roles('user')
-@Query(() => String)
-whoAmI(@Context() context) {
-  console.log('Current user:', context.req.user);
-  return `Hello ${context.req.user.email}`;
-}
+  @UseGuards(PermissionsGuard)
+  @HasPermissions(PermissionEnum.SUPER_ADMIN)
+  @Query(() => String)
+  whoAmI(@Context() context) {
+    console.log('Current user:', context.req.user);
+    return `Hello ${context.req.user.email}`;
+  }
 }

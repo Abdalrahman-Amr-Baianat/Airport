@@ -1,45 +1,31 @@
+// src/auth/guards/permissions.guard.ts
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { PERMISSIONS_KEY } from 'src/decorators/permissions.decorator';
-import { User } from 'src/modules/users/users.entity';
+import { PermissionEnum } from 'src/enums/permission.enum';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Extract required permissions from decorator
-    const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
-      PERMISSIONS_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+  canActivate(context: ExecutionContext): boolean {
+    const requiredPermissions = this.reflector.getAllAndOverride<
+      PermissionEnum[]
+    >(PERMISSIONS_KEY, [context.getHandler(), context.getClass()]);
 
-    if (!requiredPermissions) {
+    if (!requiredPermissions || requiredPermissions.length === 0) {
       return true;
     }
 
     const ctx = GqlExecutionContext.create(context);
-    const user: User = ctx.getContext().req.user; 
+    const user = ctx.getContext().req.user;
 
-    if (!user) {
-      return false;
-    }
+    if (!user) return false;
 
-    const userPermissions = new Set<string>();
+    const userPermissions: PermissionEnum[] =
+      user.roles?.flatMap((role) => role.permissions || []) || [];
 
-    if (user.permissions) {
-      user.permissions.forEach((p) => userPermissions.add(p.name));
-    }
-
-    if (user.roles) {
-      user.roles.forEach((role) => {
-        if (role.permissions) {
-          role.permissions.forEach((p) => userPermissions.add(p.name));
-        }
-      });
-    }
-
-    return requiredPermissions.every((perm) => userPermissions.has(perm));
+    return requiredPermissions.every((perm) => userPermissions.includes(perm));
   }
 }

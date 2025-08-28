@@ -1,3 +1,4 @@
+import { registerEnumType } from '@nestjs/graphql';
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import {
   Entity,
@@ -8,8 +9,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Permission } from './permissions.entity';
 import { User } from 'src/modules/users/users.entity';
+import { PermissionEnum } from 'src/enums/permission.enum';
 
 @ObjectType()
 @Entity('roles')
@@ -27,16 +28,14 @@ export class Role {
   @JoinColumn({ name: 'created_by' })
   createdBy?: User;
 
-  @Field(() => [Permission], { nullable: true })
-  @ManyToMany(() => Permission, (permission) => permission.roles, {
-    
+  @Field(() => [PermissionEnum])
+  @Column({
+    type: 'enum',
+    enum: PermissionEnum,
+    array: true,
+    default: [],
   })
-  @JoinTable({
-    name: 'role_permissions',
-    joinColumn: { name: 'role_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
-  })
-  permissions?: Permission[];
+  permissions: PermissionEnum[];
 
   @Field(() => [User], { nullable: true })
   @ManyToMany(() => User, (user) => user.roles)

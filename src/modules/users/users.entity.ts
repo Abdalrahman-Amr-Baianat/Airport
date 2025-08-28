@@ -10,7 +10,6 @@ import {
   JoinTable,
   OneToOne,
 } from 'typeorm';
-import { Permission } from '../auth/permissions.entity';
 import { Role } from '../auth/roles.entity';
 import { Notification } from 'src/modules/notifications/notifications.entity';
 import { Staff } from 'src/modules/staff/staff.entity';
@@ -30,7 +29,7 @@ export class User {
   @Column({ type: 'varchar', unique: true })
   email: string;
 
-  @Column({ nullable: true, default: false }) // TODO Set nullable false
+  @Column({ nullable: false, default: false }) 
   isVerified: boolean;
 
   @HideField()
@@ -49,17 +48,6 @@ export class User {
   @Field(() => [User], { nullable: true })
   @OneToMany(() => User, (user) => user.createdBy)
   createdUsers?: User[];
-
-  @Field(() => [Permission], { nullable: true })
-  @ManyToMany(() => Permission, (permission) => permission.users, {
-    cascade: true,
-  })
-  @JoinTable({
-    name: 'user_permissions',
-    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
-  })
-  permissions?: Permission[];
 
   @Field(() => [Role], { nullable: true })
   @ManyToMany(() => Role, (role) => role.users, { cascade: true })

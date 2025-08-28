@@ -8,14 +8,15 @@ import { User } from '../users/users.entity';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/jwt-auth.guard';
 import { Role } from './roles.entity';
-import { RolesGuard } from 'src/guards/roles.guard';
-import { Roles } from 'src/decorators/roles.decorator';
-import { UserRoleEnum } from 'src/enums/role.enums';
+import { AdminService } from '../users/admin/admin.service';
+import { CreateRoleInput } from 'src/dtos/create-role.input';
 
-@UseGuards(RolesGuard)
 @Resolver()
 export class AuthResolver {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private readonly adminService: AdminService,
+  ) {}
 
   @Mutation(() => AuthResponseDto)
   async login(@Args('input') loginInput: LoginInputDto) {
@@ -42,7 +43,16 @@ export class AuthResolver {
     console.log('Current user:', context.req.user);
     return `Hello ${context.req.user.email}`;
   }
-
-  @Roles(UserRoleEnum.SUPER_ADMIN)
-  createNewRole() {}
+  @UseGuards(AuthGuard)
+  @Mutation(() => Role)
+  async createNewRole(
+    @Args('input') data: CreateRoleInput,
+    @Context() context,
+  ) {
+    return this.adminService.createRole(
+      data.name,
+      context.req.user.id,
+      data.permissions,
+    );
+  }
 }

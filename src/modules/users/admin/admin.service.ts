@@ -4,23 +4,19 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Permission } from 'src/modules/auth/permissions.entity';
 import { Role } from 'src/modules/auth/roles.entity';
 import { In, Repository } from 'typeorm';
 import { User } from '../users.entity';
 
-import { UserRoleEnum } from 'src/enums/role.enums';
 import { UsersService } from '../users.service';
 import { ConfigService } from '@nestjs/config';
+import { PermissionEnum } from 'src/enums/permission.enum';
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
-
-    @InjectRepository(Permission)
-    private readonly permissionRepository: Repository<Permission>,
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -33,7 +29,7 @@ export class AdminService {
   async createRole(
     name: string,
     createdById?: string,
-    permissionIds?: string[],
+    permissions?: PermissionEnum[],
   ): Promise<Role> {
     const existing = await this.roleRepository.findOne({ where: { name } });
     if (existing) {
@@ -53,41 +49,31 @@ export class AdminService {
       createdBy = foundUser;
     }
 
-    let permissions: Permission[] = [];
-    if (permissionIds && permissionIds.length > 0) {
-      permissions = await this.permissionRepository.find({
-        where: { id: In(permissionIds) },
-      });
-    }
-
     const role = this.roleRepository.create({
       name,
       createdBy,
-      permissions,
+      permissions: permissions || [],
     });
+
     return await this.roleRepository.save(role);
   }
 
   async onApplicationBootstrap() {
     const existingSuperAdminRole = await this.roleRepository.findOne({
-      where: { name: UserRoleEnum.SUPER_ADMIN },
+      where: { name: PermissionEnum.SUPER_ADMIN },
     });
 
     if (!existingSuperAdminRole) {
-      await this.createRole(UserRoleEnum.SUPER_ADMIN);
+      await this.createRole(PermissionEnum.SUPER_ADMIN, undefined, [
+        PermissionEnum.SUPER_ADMIN,
+      ]);
     }
 
     const existingSuperAdmin = await this.userRepository.findOne({
       where: {
-        roles: { name: UserRoleEnum.SUPER_ADMIN },
+        roles: { name: PermissionEnum.SUPER_ADMIN },
       },
     });
-
-    // const existingSuperAdmin = await this.userRepository
-    //   .createQueryBuilder('user')
-    //   .leftJoinAndSelect('user.roles', 'role')
-    //   .where('role.name = :roleName', { roleName: UserRoleEnum.SUPER_ADMIN })
-    //   .getOne();
 
     if (!existingSuperAdmin) {
       const superAdmin = this.userService.create({
@@ -98,10 +84,11 @@ export class AdminService {
         password:
           this.configService.get<string>('SUPER_ADMIN_PASSWORD') ||
           'superStrongPassword',
-        roleNames: [UserRoleEnum.SUPER_ADMIN],
-        
+        roleNames: [PermissionEnum.SUPER_ADMIN],
+
         isVerified: true,
       });
     }
   }
 }
+

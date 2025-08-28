@@ -19,27 +19,12 @@ export class UsersService {
     private readonly roleRepo: Repository<Role>,
   ) {}
 
-  // To get role permissions and direct permissions
-  async getUserPermissions(userId: string): Promise<string[]> {
-    const user = await this.userRepo.findOne({
-      where: { id: userId },
-      relations: ['roles', 'roles.permissions', 'permissions'],
-    });
-    if (!user) {
-      throw new NotFoundException('user not found');
-    }
-    const rolePermissions =
-      user.roles?.flatMap((r) => r.permissions?.map((p) => p.name) ?? []) ?? [];
-    const directPermissions = user.permissions?.map((p) => p.name) ?? [];
-    return Array.from(new Set([...rolePermissions, ...directPermissions]));
-  }
-
   ///////////////////////
 
   async findByEmail(email: string) {
     return this.userRepo.findOne({
       where: { email },
-      relations: ['roles', 'permissions'],
+      relations: ['roles'],
     });
   }
 
@@ -89,7 +74,7 @@ export class UsersService {
   findById(id: string) {
     return this.userRepo.findOne({
       where: { id },
-      relations: ['roles', 'permissions'],
+      relations: ['roles'],
     });
   }
 }
