@@ -2,19 +2,19 @@ import { Global, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthResolver } from './auth.resolver';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { UsersModule } from '../users/users.module';
 import { Otp } from './entities/otps.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmailsModule } from '../emails/emails.module';
 import { AirportsModule } from '../airports/airports.module';
+import { Role } from './entities/roles.entity';
 
 @Module({
-  imports: [AirportsModule,
-    TypeOrmModule.forFeature([Otp]),
+  imports: [
+    AirportsModule,
+    TypeOrmModule.forFeature([Otp, Role]),
     EmailsModule,
-    UsersModule,
-    UsersModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({

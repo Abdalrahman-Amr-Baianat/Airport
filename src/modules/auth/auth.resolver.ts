@@ -8,7 +8,6 @@ import { User } from '../users/users.entity';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/jwt-auth.guard';
 import { Role } from './entities/roles.entity';
-import { AdminService } from '../users/admin/admin.service';
 import { CreateRoleInput } from 'src/dtos/create-role.input';
 import { OtpUseCaseEnum } from 'src/enums/otp-usecase.enum';
 import { VerifyOtpInput } from 'src/dtos/virefy-account-otp.input';
@@ -19,8 +18,7 @@ import { UUID } from 'crypto';
 export class AuthResolver {
   constructor(
     private authService: AuthService,
-    private readonly adminService: AdminService,
-  ) {}
+) {}
 
   @Mutation(() => AuthResponseDto)
   async login(@Args('input') loginInput: LoginInputDto) {
@@ -39,19 +37,6 @@ export class AuthResolver {
   @Mutation(() => User)
   async verifyToken(@Args('input') token: string) {
     return this.authService.verifyToken(token);
-  }
-
-  @UseGuards(AuthGuard) // add super admin guard
-  @Mutation(() => Role)
-  async createNewRole(
-    @Args('input') data: CreateRoleInput,
-    @Context() context,
-  ) {
-    return this.adminService.createRole(
-      data.name,
-      context.req.user.id,
-      data.permissions,
-    );
   }
 
   @UseGuards(AuthGuard)
@@ -75,16 +60,5 @@ export class AuthResolver {
     );
   }
 
-// add super admin guard
-  @UseGuards(AuthGuard)
-  @Mutation(() => User)
-  async assignRoleToUser(
-    @Context() context: any,
-    @Args('input') data: AssignRoleInput,
-  ) {
-    return this.adminService.assignRoleToUser(
-      data.userId as UUID,
-      data.roleName,
-    );
-  }
+
 }

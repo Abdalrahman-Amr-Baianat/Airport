@@ -19,6 +19,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppResolver } from './app/app.resolver';
 import { GlobalModule } from './modules/global/global.module';
 import { EmailsModule } from './modules/emails/emails.module';
+import { UsersResolver } from './modules/users/users.resolver';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -46,6 +47,6 @@ import { EmailsModule } from './modules/emails/emails.module';
     EmailsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AppResolver],
+  providers: [AppService, AppResolver, UsersResolver],
 })
 export class AppModule {}

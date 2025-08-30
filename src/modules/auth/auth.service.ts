@@ -7,7 +7,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterInput } from 'src/dtos/register.input';
-import { UsersService } from 'src/modules/users/users.service';
 import { User } from '../users/users.entity';
 import { UUID } from 'crypto';
 import { OtpUseCaseEnum } from 'src/enums/otp-usecase.enum';
@@ -20,17 +19,16 @@ import { Role } from './entities/roles.entity';
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
     private jwtService: JwtService,
     private emailService: EmailsService,
 
     @InjectRepository(Otp) private readonly otpRepo: Repository<Otp>,
     @InjectRepository(User) private readonly userRepo: Repository<User>,
-    @InjectRepository(User) private readonly roleRepo: Repository<Role>,
+    @InjectRepository(Role) private readonly roleRepo: Repository<Role>,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<User> {
-    const user = await this.usersService.findByEmail(email);
+    const user = await this.userRepo.findOne({ where: { email } });
     if (user && (await bcrypt.compare(pass, user.password))) {
       return user;
     }
@@ -45,14 +43,58 @@ export class AuthService {
     };
   }
 
+
+  async createNewUser(data: {
+    name: string;
+    email: string;
+    password: string;
+    roleNames?: string[];
+    createdById?: string;
+    isVerified?: boolean;
+  }): Promise<User> {
+    const existing = await this.userRepo.findOne({
+      where: { email: data.email },
+    });
+    if (existing) {
+      throw new BadRequestException('Email already in use');
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    let roles: Role[] = [];
+    if (data.roleNames && data.roleNames.length > 0) {
+      roles = await this.roleRepo.find({ where: { name: In(data.roleNames) } });
+    } else {
+      const defaultRole = await this.roleRepo.findOne({
+        where: { name: 'user' },
+      });
+      if (defaultRole) roles = [defaultRole];
+    }
+
+    const user = this.userRepo.create({
+      name: data.name,
+      email: data.email,
+      password: hashedPassword,
+      roles: roles,
+      createdBy: data.createdById
+        ? ({ id: data.createdById } as User)
+        : undefined,
+      isVerified: data.isVerified,
+    });
+
+    return this.userRepo.save(user);
+  }
+
   async register(registerInput: RegisterInput) {
-    return this.usersService.create(registerInput);
+    return this.createNewUser(registerInput);
   }
 
   async verifyToken(token: string): Promise<any> {
     try {
       const decoded = this.jwtService.verify(token);
-      const user = await this.usersService.findById(decoded.id);
+      const user = await this.userRepo.findOne({
+        where: { id: decoded.id },
+      });
       return user;
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
@@ -131,7 +173,4 @@ export class AuthService {
       throw new UnauthorizedException('Wrong OTP');
     }
   }
-
-  
-  
 }
