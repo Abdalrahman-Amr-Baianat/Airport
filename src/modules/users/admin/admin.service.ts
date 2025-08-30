@@ -114,6 +114,10 @@ export class AdminService {
     }
   }
 
+  async listRoles() {
+    return this.roleRepo.find();
+  }
+
   async assignRoleToUser(userId: UUID, roleName: string) {
     const user = await this.userRepo.findOne({
       where: { id: userId },
@@ -157,5 +161,5 @@ export class AdminService {
     return await this.airportRepo.save(airport);
   }
 
-  // TODO make the resolver with permission Manage airports
+  
 }

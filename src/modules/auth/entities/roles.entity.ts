@@ -12,6 +12,10 @@ import {
 import { User } from 'src/modules/users/users.entity';
 import { PermissionEnum } from 'src/enums/permission.enum';
 
+
+registerEnumType(PermissionEnum, {
+  name: 'PermissionEnum',
+});
 @ObjectType()
 @Entity('roles')
 export class Role {

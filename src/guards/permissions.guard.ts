@@ -1,4 +1,3 @@
-// src/auth/guards/permissions.guard.ts
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
@@ -20,11 +19,10 @@ export class PermissionsGuard implements CanActivate {
 
     const ctx = GqlExecutionContext.create(context);
     const user = ctx.getContext().req.user;
-
     if (!user) return false;
 
     const userPermissions: PermissionEnum[] =
-      user.roles?.flatMap((role) => role.permissions || []) || [];  //TODO FLAT MAP  and MAP
+      user.roles?.flatMap((role) => role.permissions || []) || [];  
 
     return requiredPermissions.every((perm) => userPermissions.includes(perm));
   }
