@@ -11,15 +11,16 @@ import { User } from '../users.entity';
 import { UsersService } from '../users.service';
 import { ConfigService } from '@nestjs/config';
 import { PermissionEnum } from 'src/enums/permission.enum';
+import { UUID } from 'crypto';
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectRepository(Role)
-    private readonly roleRepository: Repository<Role>,
+    private readonly roleRepo: Repository<Role>,
 
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly userRepo: Repository<User>,
 
     private readonly userService: UsersService,
 
@@ -31,14 +32,14 @@ export class AdminService {
     createdById?: string,
     permissions?: PermissionEnum[],
   ): Promise<Role> {
-    const existing = await this.roleRepository.findOne({ where: { name } });
+    const existing = await this.roleRepo.findOne({ where: { name } });
     if (existing) {
       throw new ConflictException(`Role '${name}' already exists`);
     }
 
     let createdBy: User | undefined = undefined;
     if (createdById) {
-      const foundUser = await this.userRepository.findOne({
+      const foundUser = await this.userRepo.findOne({
         where: { id: createdById },
       });
 
@@ -49,17 +50,17 @@ export class AdminService {
       createdBy = foundUser;
     }
 
-    const role = this.roleRepository.create({
+    const role = this.roleRepo.create({
       name,
       createdBy,
       permissions: permissions || [],
     });
 
-    return await this.roleRepository.save(role);
+    return await this.roleRepo.save(role);
   }
 
   async onApplicationBootstrap() {
-    const existingSuperAdminRole = await this.roleRepository.findOne({
+    const existingSuperAdminRole = await this.roleRepo.findOne({
       where: { name: PermissionEnum.SUPER_ADMIN },
     });
 
@@ -69,7 +70,7 @@ export class AdminService {
       ]);
     }
 
-    const existingSuperAdmin = await this.userRepository.findOne({
+    const existingSuperAdmin = await this.userRepo.findOne({
       where: {
         roles: { name: PermissionEnum.SUPER_ADMIN },
       },
@@ -91,4 +92,32 @@ export class AdminService {
       });
     }
   }
+
+  async assignRoleToUser(userId: UUID, roleName: string) {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: ['roles'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
+
+    const role = await this.roleRepo.findOne({ where: { name: roleName } });
+    if (!role) {
+      throw new NotFoundException('role not found');
+    }
+
+    user.roles = user.roles ?? [];
+
+    const hasRole = user.roles.some((r) => r.id === role.id);
+    if (!hasRole) {
+      user.roles.push(role);
+    }
+
+    return this.userRepo.save(user);
+
+  }
+
+  
 }

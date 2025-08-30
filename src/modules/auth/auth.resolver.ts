@@ -12,6 +12,8 @@ import { AdminService } from '../users/admin/admin.service';
 import { CreateRoleInput } from 'src/dtos/create-role.input';
 import { OtpUseCaseEnum } from 'src/enums/otp-usecase.enum';
 import { VerifyOtpInput } from 'src/dtos/virefy-account-otp.input';
+import { AssignRoleInput } from './dtos/assign-role.input';
+import { UUID } from 'crypto';
 
 @Resolver()
 export class AuthResolver {
@@ -39,14 +41,7 @@ export class AuthResolver {
     return this.authService.verifyToken(token);
   }
 
-  @UseGuards(AuthGuard)
-  @Query(() => String)
-  whoAre(@Context() context) {
-    console.log('Current user:', context.req.user);
-    return `Hello ${context.req.user.email}`;
-  }
-
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard) // add super admin guard
   @Mutation(() => Role)
   async createNewRole(
     @Args('input') data: CreateRoleInput,
@@ -63,7 +58,6 @@ export class AuthResolver {
   @Mutation(() => String)
   verifyAccountSendOtp(@Context() context) {
     this.authService.verifyAccountSendOtp(context.req.user.id);
-    // console.log('Current user:', context.req.user);
     return `Hello ${context.req.user.email}`;
   }
 
@@ -73,11 +67,24 @@ export class AuthResolver {
     @Context() context: any,
     @Args('input') data: VerifyOtpInput,
   ): Promise<User> {
-    const userId = context.req.user.id; 
+    const userId = context.req.user.id;
     return this.authService.verifyAccountVerifyOtp(
       userId,
-      data.otp,//TODO ERRRRROOOORRR HERE
+      data.otp,
       OtpUseCaseEnum.VERIFY_EMAIL,
+    );
+  }
+
+// add super admin guard
+  @UseGuards(AuthGuard)
+  @Mutation(() => User)
+  async assignRoleToUser(
+    @Context() context: any,
+    @Args('input') data: AssignRoleInput,
+  ) {
+    return this.adminService.assignRoleToUser(
+      data.userId as UUID,
+      data.roleName,
     );
   }
 }

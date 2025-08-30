@@ -15,6 +15,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Otp } from './entities/otps.entity';
 import { In, Repository } from 'typeorm';
 import { EmailsService } from '../emails/emails.service';
+import { Role } from './entities/roles.entity';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +26,7 @@ export class AuthService {
 
     @InjectRepository(Otp) private readonly otpRepo: Repository<Otp>,
     @InjectRepository(User) private readonly userRepo: Repository<User>,
+    @InjectRepository(User) private readonly roleRepo: Repository<Role>,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<User> {
@@ -62,6 +64,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException("user isn't found");
     }
+    await this.otpRepo.delete({ user: { id: userId }, useCase });
 
     const otp = this.otpRepo.create({
       otpCode: Math.floor(1000 + Math.random() * 9000).toString(),
@@ -124,8 +127,11 @@ export class AuthService {
       }
       user.isVerified = true;
       return this.userRepo.save(user);
-    }else { 
-      throw new UnauthorizedException("stttttt")
+    } else {
+      throw new UnauthorizedException('Wrong OTP ');
     }
   }
+
+  
+  
 }

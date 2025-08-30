@@ -1,5 +1,7 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import * as path from 'path';
 import { join } from 'path';
 export const databaseConfig = TypeOrmModule.forRootAsync({
   imports: [ConfigModule],
@@ -13,5 +15,12 @@ export const databaseConfig = TypeOrmModule.forRootAsync({
     database: configService.get<string>('DB_NAME'),
     entities: [join(__dirname, '..', '**', '*.entity{.ts,.js}')],
     synchronize: true,
+    ssl: {
+      ca: fs
+        .readFileSync(
+          path.join(__dirname, '..', '..', 'eu-north-1-bundle.pem'),
+        )
+        .toString(),
+    },
   }),
 });
