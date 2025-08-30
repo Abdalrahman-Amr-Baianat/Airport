@@ -2,6 +2,7 @@ import { UseGuards } from '@nestjs/common';
 import { Resolver, Query, Context } from '@nestjs/graphql';
 import { HasPermissions } from 'src/decorators/permissions.decorator';
 import { PermissionEnum } from 'src/enums/permission.enum';
+import { RoleEnum } from 'src/enums/role.enum';
 import { AuthGuard } from 'src/guards/jwt-auth.guard';
 import { PermissionsGuard } from 'src/guards/permissions.guard';
 import { Airport } from 'src/modules/airports/airports.entity';
@@ -35,7 +36,6 @@ export class AppResolver {
   
 
   @UseGuards(PermissionsGuard)
-  @HasPermissions(PermissionEnum.SUPER_ADMIN)
   @Query(() => String)
   whoAmI(@Context() context) {
     console.log('Current user:', context.req.user);

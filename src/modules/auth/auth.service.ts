@@ -128,7 +128,7 @@ export class AuthService {
       user.isVerified = true;
       return this.userRepo.save(user);
     } else {
-      throw new UnauthorizedException('Wrong OTP ');
+      throw new UnauthorizedException('Wrong OTP');
     }
   }
 

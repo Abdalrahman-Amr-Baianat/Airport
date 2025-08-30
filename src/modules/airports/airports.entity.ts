@@ -1,7 +1,15 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Flight } from 'src/modules/flights/flights.entity';
 import { Airline } from 'src/modules/airlines/airlines.entity';
+import { User } from '../users/users.entity';
 
 @ObjectType()
 @Entity('airports')
@@ -21,6 +29,14 @@ export class Airport {
   @Field()
   @Column()
   city: string;
+
+  @Field(() => User, { nullable: true })
+  @ManyToOne(() => User, { eager: true, nullable: true })
+  @JoinColumn({ name: 'createdById' })
+  createdBy?: User;
+
+  @Column({ nullable: true })
+  createdById?: string;
 
   @Field()
   @Column()

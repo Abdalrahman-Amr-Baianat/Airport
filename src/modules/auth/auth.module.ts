@@ -7,9 +7,10 @@ import { UsersModule } from '../users/users.module';
 import { Otp } from './entities/otps.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmailsModule } from '../emails/emails.module';
+import { AirportsModule } from '../airports/airports.module';
 
 @Module({
-  imports: [
+  imports: [AirportsModule,
     TypeOrmModule.forFeature([Otp]),
     EmailsModule,
     UsersModule,

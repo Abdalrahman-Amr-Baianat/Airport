@@ -7,11 +7,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/modules/auth/entities/roles.entity';
 import { In, Repository } from 'typeorm';
 import { User } from '../users.entity';
-
+import { Airport } from 'src/modules/airports/airports.entity';
 import { UsersService } from '../users.service';
 import { ConfigService } from '@nestjs/config';
 import { PermissionEnum } from 'src/enums/permission.enum';
 import { UUID } from 'crypto';
+import { CreateAirportDto } from 'src/modules/auth/dtos/create-airport.input';
+import { RoleEnum } from 'src/enums/role.enum';
 
 @Injectable()
 export class AdminService {
@@ -21,6 +23,9 @@ export class AdminService {
 
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+
+    @InjectRepository(Airport)
+    private readonly airportRepo: Repository<Airport>,
 
     private readonly userService: UsersService,
 
@@ -61,23 +66,39 @@ export class AdminService {
 
   async onApplicationBootstrap() {
     const existingSuperAdminRole = await this.roleRepo.findOne({
-      where: { name: PermissionEnum.SUPER_ADMIN },
+      where: { name: RoleEnum.SUPER_ADMIN },
     });
 
     if (!existingSuperAdminRole) {
-      await this.createRole(PermissionEnum.SUPER_ADMIN, undefined, [
-        PermissionEnum.SUPER_ADMIN,
-      ]);
+      await this.createRole(
+        RoleEnum.SUPER_ADMIN,
+        undefined,
+        Object.values(PermissionEnum), 
+      );
+    }
+
+    if (existingSuperAdminRole) {
+      const allPermissions = Object.values(PermissionEnum);
+    
+      const currentPermissions = existingSuperAdminRole.permissions || [];
+    
+      const hasChanges =
+        currentPermissions.length !== allPermissions.length ||
+        !allPermissions.every((perm) => currentPermissions.includes(perm));
+    
+      if (hasChanges) {
+        existingSuperAdminRole.permissions = allPermissions;
+        await this.roleRepo.save(existingSuperAdminRole);
+      }
     }
 
     const existingSuperAdmin = await this.userRepo.findOne({
       where: {
-        roles: { name: PermissionEnum.SUPER_ADMIN },
+        roles: { name: RoleEnum.SUPER_ADMIN },
       },
     });
 
     if (!existingSuperAdmin) {
-      //TODO add all permissions
       const superAdmin = this.userService.create({
         name: 'SUPER_ADMIN',
         email:
@@ -86,7 +107,7 @@ export class AdminService {
         password:
           this.configService.get<string>('SUPER_ADMIN_PASSWORD') ||
           'superStrongPassword',
-        roleNames: [PermissionEnum.SUPER_ADMIN],
+        roleNames: [RoleEnum.SUPER_ADMIN],
 
         isVerified: true,
       });
@@ -116,8 +137,25 @@ export class AdminService {
     }
 
     return this.userRepo.save(user);
-
   }
 
-  
+  async createAirport(input: CreateAirportDto, createdById?: string) {
+    const existing = await this.airportRepo.findOne({
+      where: { code: input.code },
+    });
+    if (existing) {
+      throw new ConflictException(
+        `Airport with code ${input.code} already exists`,
+      );
+    }
+
+    const airport = this.airportRepo.create({
+      ...input,
+      createdById,
+    });
+
+    return await this.airportRepo.save(airport);
+  }
+
+  // TODO make the resolver with permission Manage airports
 }

@@ -1,7 +1,6 @@
 import { registerEnumType } from "@nestjs/graphql";
 
-export enum PermissionEnum {
-    SUPER_ADMIN = 'Super_admin',
+export enum PermissionEnum {  
     MANAGE_USERS = 'manage_users',
     MANAGE_ROLES = 'manage_roles',
     MANAGE_FLIGHTS = 'manage_flights',
@@ -9,6 +8,7 @@ export enum PermissionEnum {
     MANAGE_STAFF = 'manage_staff',
     VIEW_FLIGHTS = 'view_flights',
     BOOK_FLIGHT = 'book_flight',
+    CANCEL_BOOKING = 'cancel_booking',
   }
   
   registerEnumType(PermissionEnum, {
