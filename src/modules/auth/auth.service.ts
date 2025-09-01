@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { RegisterInput } from 'src/dtos/register.input';
+import { RegisterInput } from 'src/modules/auth/dtos/register.input';
 import { User } from '../users/users.entity';
 import { UUID } from 'crypto';
 import { OtpUseCaseEnum } from 'src/enums/otp-usecase.enum';
@@ -42,7 +42,6 @@ export class AuthService {
       }),
     };
   }
-
 
   async createNewUser(data: {
     name: string;

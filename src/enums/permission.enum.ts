@@ -10,6 +10,7 @@ export enum PermissionEnum {
   BOOK_FLIGHT = 'book_flight',
   CANCEL_BOOKING = 'cancel_booking',
   MANAGE_AIRPORTS = 'manage_airports',
+  MANAGE_AIRlINES = 'manage_airlines',
 }
 
 registerEnumType(PermissionEnum, {

@@ -1,24 +1,22 @@
 import { Resolver, Mutation, Args, Query, Context } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
-import { LoginInputDto } from 'src/dtos/login.input';
-import { AuthResponseDto } from 'src/dtos/auth-response';
-import { UserType } from 'src/dtos/user.type';
-import { RegisterInput } from 'src/dtos/register.input';
+import { LoginInputDto } from 'src/modules/auth/dtos/login.input';
+import { AuthResponseDto } from 'src/modules/auth/dtos/auth-response';
+import { UserType } from 'src/modules/users/dtos/user.type';
+import { RegisterInput } from 'src/modules/auth/dtos/register.input';
 import { User } from '../users/users.entity';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/jwt-auth.guard';
 import { Role } from './entities/roles.entity';
-import { CreateRoleInput } from 'src/dtos/create-role.input';
+import { CreateRoleInput } from 'src/modules/auth/dtos/create-role.input';
 import { OtpUseCaseEnum } from 'src/enums/otp-usecase.enum';
-import { VerifyOtpInput } from 'src/dtos/virefy-account-otp.input';
+import { VerifyOtpInput } from 'src/modules/auth/dtos/virefy-account-otp.input';
 import { AssignRoleInput } from './dtos/assign-role.input';
 import { UUID } from 'crypto';
 
 @Resolver()
 export class AuthResolver {
-  constructor(
-    private authService: AuthService,
-) {}
+  constructor(private authService: AuthService) {}
 
   @Mutation(() => AuthResponseDto)
   async login(@Args('input') loginInput: LoginInputDto) {
@@ -59,6 +57,4 @@ export class AuthResolver {
       OtpUseCaseEnum.VERIFY_EMAIL,
     );
   }
-
-
 }

@@ -4,17 +4,21 @@ import sgMail from '@sendgrid/mail';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import Handlebars from 'handlebars';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class EmailsService {
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    @InjectQueue('email') private readonly emailQueue: Queue,
+  ) {
     sgMail.setApiKey(
       this.configService.get<string>('SEND_GRID_API_KEY') || 'secret',
     );
   }
 
-
-  private async loadTemplate(
+  async loadTemplate(
     templateName: string,
     data: Record<string, any>,
   ): Promise<string> {
@@ -36,31 +40,49 @@ export class EmailsService {
       throw error;
     }
   }
-
+// To add the email to the queue 
   async sendEmail(
     toEmail: string,
     subject: string,
-    templateFile: string, 
-    variables: Record<string, any>, 
+    templateFile: string,
+    variables: Record<string, any>,
   ) {
-    try {
-      const htmlContent = await this.loadTemplate(templateFile, variables);
-
-      const msg = {
-        to: toEmail,
-        from: 'abdalrhmanamr2006@gmail.com',
-        subject: subject || 'No subject',
-        html: htmlContent,
-      };
-
-      await sgMail.send(msg);
-      console.log(`Email sent successfully to ${toEmail}`);
-      return { success: true };
-    } catch (error: any) {
-      console.error('Failed to send email:', error.response?.body || error.message);
-      throw error;
-    }
+    await this.emailQueue.add('sendEmail', {
+      toEmail,
+      subject,
+      templateFile,
+      variables,
+    });
+    return { success: true, message: 'Email job queued' };
   }
+
+// DIRECT EMAIL SEND WITHOUT QUEUE
+
+  // async sendEmail(
+  //   toEmail: string,
+  //   subject: string,
+  //   templateFile: string,
+  //   variables: Record<string, any>,
+  // ) {
+  //   try {
+  //     const htmlContent = await this.loadTemplate(templateFile, variables);
+
+  //     const msg = {
+  //       to: toEmail,
+  //       from: 'abdalrhmanamr2005@gmail.com',
+  //       subject: subject || 'No subject',
+  //       html: htmlContent,
+  //     };
+
+  //     await sgMail.send(msg);
+  //     console.log(`Email sent successfully to ${toEmail}`);
+  //     return { success: true };
+  //   } catch (error: any) {
+  //     console.error(
+  //       'Failed to send email:',
+  //       error.response?.body || error.message,
+  //     );
+  //     throw error;
+  //   }
+  // }
 }
-
-

@@ -8,10 +8,14 @@ import { EmailsModule } from '../emails/emails.module';
 import { Airport } from '../airports/airports.entity';
 import { UsersResolver } from './users.resolver';
 import { AuthModule } from '../auth/auth.module';
+import { Airline } from '../airlines/airlines.entity';
+import { Flight } from '../flights/flights.entity';
+import { FlightsModule } from '../flights/flights.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Role, Airport]),
+    FlightsModule,
+    TypeOrmModule.forFeature([User, Role, Airport, Airline, Flight]),
     EmailsModule,
     AuthModule,
   ],

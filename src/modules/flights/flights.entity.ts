@@ -7,17 +7,23 @@ import {
   OneToMany,
   JoinColumn,
   Index,
+  Unique,
 } from 'typeorm';
 import { Airline } from 'src/modules/airlines/airlines.entity';
 import { Airport } from 'src/modules/airports/airports.entity';
 import { Booking } from 'src/modules/bookings/bookings.entity';
 import { StaffFlight } from 'src/modules/staff/staff_flights.entity';
 import { FlightStatusHistory } from './flight_status_history.entity';
-// --- Enum for flight status ---
+
 export enum FlightStatus {
-  ON_TIME = 'on_time',
+  SCHEDULED = 'scheduled',
+  BOARDING = 'boarding',
+  DEPARTED = 'departed',
+  IN_AIR = 'in_air',
   DELAYED = 'delayed',
-  CANCELED = 'canceled',
+  LANDED = 'landed',
+  CANCELLED = 'cancelled',
+  DIVERTED = 'diverted',
 }
 
 registerEnumType(FlightStatus, {
@@ -32,6 +38,7 @@ registerEnumType(FlightStatus, {
 @Index('IDX_departure_airport_id', ['departureAirport'])
 @Index('IDX_destination_airport_id', ['destinationAirport'])
 @Index('IDX_departure_time', ['departureTime'])
+@Unique('UQ_flight_airline_number', ['flightNumber', 'airline'])
 export class Flight {
   @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
@@ -41,7 +48,6 @@ export class Flight {
   @Column({ type: 'varchar' })
   flightNumber: string;
 
-  // --- Relations ---
   @Field(() => Airline)
   @ManyToOne(() => Airline, (airline) => airline.flights, {
     onDelete: 'CASCADE',
@@ -63,7 +69,6 @@ export class Flight {
   @JoinColumn({ name: 'destination_airport_id' })
   destinationAirport: Airport;
 
-  // --- Times ---
   @Field()
   @Column({ type: 'timestamp' })
   departureTime: Date;
@@ -72,12 +77,10 @@ export class Flight {
   @Column({ type: 'timestamp' })
   arrivalTime: Date;
 
-  // --- Status ---
   @Field(() => FlightStatus)
-  @Column({ type: 'enum', enum: FlightStatus })
+  @Column({ type: 'enum', enum: FlightStatus, enumName: 'flight_status_enum' })
   status: FlightStatus;
 
-  // --- Seats ---
   @Field()
   @Column({ type: 'int' })
   totalSeats: number;
@@ -86,7 +89,6 @@ export class Flight {
   @Column({ type: 'int' })
   availableSeats: number;
 
-  // --- Gate & Terminal ---
   @Field({ nullable: true })
   @Column({ type: 'varchar', nullable: true })
   gate?: string;
@@ -95,7 +97,6 @@ export class Flight {
   @Column({ type: 'varchar', nullable: true })
   terminal?: string;
 
-  // --- Reverse relation ---
   @Field(() => [Booking], { nullable: true })
   @OneToMany(() => Booking, (booking) => booking.flight)
   bookings?: Booking[];

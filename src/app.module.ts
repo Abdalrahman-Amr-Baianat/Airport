@@ -22,6 +22,7 @@ import { EmailsModule } from './modules/emails/emails.module';
 import { UsersResolver } from './modules/users/users.resolver';
 @Module({
   imports: [
+   
     ConfigModule.forRoot({
       isGlobal: true,
     }),

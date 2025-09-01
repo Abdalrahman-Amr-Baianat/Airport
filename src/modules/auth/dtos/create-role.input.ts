@@ -1,5 +1,5 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { PermissionEnum } from '../enums/permission.enum';
+import { PermissionEnum } from '../../../enums/permission.enum';
 import { IsEnum, IsArray, IsOptional } from 'class-validator';
 
 @InputType()

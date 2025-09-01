@@ -17,20 +17,7 @@ export class AppResolver {
     private readonly authService: AuthService,
   ) {}
 
-  @Query(() => String, { name: 'test' })
-  async hello() {
-    // await this.emailService.sendEmail(
-    //   'abdalrhmanamr2006@gmail.com',
-    //   'test',
-    //   'otp',
-    //   {
-    //     appName:"Airport",
-    //     otp: '123456',
-    //   }
-    // );
-
-    return 'Hello World!';
-  }
+  
 
 
   
