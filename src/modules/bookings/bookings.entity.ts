@@ -15,7 +15,7 @@ import { Baggage } from 'src/modules/baggage/baggage.entity';
 import { Flight } from 'src/modules/flights/flights.entity';
 import { Notification } from 'src/modules/notifications/notifications.entity';
 
-// --- Enum for booking status ---
+//  Enum for booking status
 export enum BookingStatus {
   BOOKED = 'booked',
   CANCELED = 'canceled',

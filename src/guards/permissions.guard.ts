@@ -19,10 +19,15 @@ export class PermissionsGuard implements CanActivate {
 
     const ctx = GqlExecutionContext.create(context);
     const user = ctx.getContext().req.user;
+    console.log("user", user);
     if (!user) return false;
 
     const userPermissions: PermissionEnum[] =
-      user.roles?.flatMap((role) => role.permissions || []) || [];  
+      user.userRoles
+        ?.flatMap((ur) => ur.role?.permissions || [])
+        .filter((p): p is PermissionEnum => !!p) || [];
+
+    console.log('userPermissions', userPermissions);
 
     return requiredPermissions.every((perm) => userPermissions.includes(perm));
   }

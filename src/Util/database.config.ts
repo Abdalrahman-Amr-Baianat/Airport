@@ -22,5 +22,6 @@ export const databaseConfig = TypeOrmModule.forRootAsync({
         )
         .toString(),
     },
+    // logging: true,
   }),
 });

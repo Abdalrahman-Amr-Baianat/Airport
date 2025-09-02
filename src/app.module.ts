@@ -20,17 +20,33 @@ import { AppResolver } from './app/app.resolver';
 import { GlobalModule } from './modules/global/global.module';
 import { EmailsModule } from './modules/emails/emails.module';
 import { UsersResolver } from './modules/users/users.resolver';
+import { UserRolesLoader } from './modules/users/user.dataloader';
+import { UsersService } from './modules/users/users.service';
+import { Repository } from 'typeorm';
+import { Role } from './modules/auth/entities/roles.entity';
+import { UserRole } from './modules/auth/entities/user-roles.entity';
+
+
 @Module({
   imports: [
-   
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      playground: true,
-      graphiql: true,
-      autoSchemaFile: true,
+      imports: [UsersModule],
+      inject: [UsersService],
+      useFactory: (rolesRepo: Repository<Role> , userRoleRepo:Repository<UserRole>) => ({
+        playground: true,
+        graphiql: true,
+        autoSchemaFile: true,
+        context: ({ req, res }) => ({
+          req,
+          res,
+          userRolesLoader: new UserRolesLoader(rolesRepo,userRoleRepo).createLoader(),
+        }),
+        
+      }),
     }),
     databaseConfig,
     GlobalModule,
@@ -49,5 +65,6 @@ import { UsersResolver } from './modules/users/users.resolver';
   ],
   controllers: [AppController],
   providers: [AppService, AppResolver, UsersResolver],
+  exports: [],
 })
 export class AppModule {}

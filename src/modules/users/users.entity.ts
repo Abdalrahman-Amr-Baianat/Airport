@@ -14,6 +14,7 @@ import { Role } from '../auth/entities/roles.entity';
 import { Notification } from 'src/modules/notifications/notifications.entity';
 import { Staff } from 'src/modules/staff/staff.entity';
 import { Otp } from '../auth/entities/otps.entity';
+import { UserRole } from '../auth/entities/user-roles.entity';
 
 @ObjectType()
 @Entity('users')
@@ -50,14 +51,10 @@ export class User {
   @OneToMany(() => User, (user) => user.createdBy)
   createdUsers?: User[];
 
-  @Field(() => [Role], { nullable: true })
-  @ManyToMany(() => Role, (role) => role.users, { cascade: true })
-  @JoinTable({
-    name: 'user_roles',
-    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'role_id', referencedColumnName: 'id' },
-  })
-  roles?: Role[];
+  @Field(() => [UserRole], { nullable: true })
+@OneToMany(() => UserRole, (userRole) => userRole.user)
+userRoles: UserRole[];
+
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications?: Notification[];

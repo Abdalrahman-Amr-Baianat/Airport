@@ -28,9 +28,8 @@ export class Passenger {
   @Column()
   nationality: string;
 
-  // --- One-to-One relation with User ---
   @Field(() => User)
-  @OneToOne(() => User, { onDelete: 'CASCADE' }) // if user is deleted → passenger deleted
+  @OneToOne(() => User, { onDelete: 'CASCADE', nullable: false })
   @JoinColumn({ name: 'user_id' })
   user: User;
 

@@ -19,6 +19,7 @@ import { CreateAirlineDto } from 'src/modules/airlines/dtos/create-airline.dto';
 import { CreateFlightDto } from 'src/modules/flights/dtos/create-flight.dto';
 import { Flight } from 'src/modules/flights/flights.entity';
 import { UpdateFlightDto } from 'src/modules/flights/dtos/update-flight.dto';
+import { UserRole } from 'src/modules/auth/entities/user-roles.entity';
 
 @Injectable()
 export class AdminService {
@@ -73,9 +74,9 @@ export class AdminService {
 
     const existingSuperAdmin = await this.userRepo.findOne({
       where: {
-        roles: { name: RoleEnum.SUPER_ADMIN },
+        userRoles: { role: { name: RoleEnum.SUPER_ADMIN },
       },
-    });
+    }});
 
     if (!existingSuperAdmin) {
       const superAdmin = this.userService.create({
@@ -86,7 +87,8 @@ export class AdminService {
         password:
           this.configService.get<string>('SUPER_ADMIN_PASSWORD') ||
           'superStrongPassword',
-        roleNames: [RoleEnum.SUPER_ADMIN],
+
+         roleNames: [RoleEnum.SUPER_ADMIN],
 
         isVerified: true,
       });
@@ -146,11 +148,11 @@ export class AdminService {
       throw new NotFoundException('role not found');
     }
 
-    user.roles = user.roles ?? [];
+    user.userRoles = user.userRoles ?? [];
 
-    const hasRole = user.roles.some((r) => r.id === role.id);
+    const hasRole = user.userRoles.some((r) => r.id === role.id);
     if (!hasRole) {
-      user.roles.push(role);
+      user.userRoles.push({role} as UserRole);
     }
 
     return this.userRepo.save(user);

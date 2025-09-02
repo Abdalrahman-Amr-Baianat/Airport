@@ -74,7 +74,7 @@ export class AuthService {
       name: data.name,
       email: data.email,
       password: hashedPassword,
-      roles: roles,
+      userRoles:roles,
       createdBy: data.createdById
         ? ({ id: data.createdById } as User)
         : undefined,

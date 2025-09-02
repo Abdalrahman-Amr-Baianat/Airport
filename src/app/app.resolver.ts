@@ -18,11 +18,7 @@ export class AppResolver {
   ) {}
 
   
-
-
-  
-
-  @UseGuards(PermissionsGuard)
+  @UseGuards(AuthGuard)
   @Query(() => String)
   whoAmI(@Context() context) {
     console.log('Current user:', context.req.user);

@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -31,10 +32,17 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
+
+      if (!payload) throw new UnauthorizedException('user not signed in');
+
       const fullUser = await this.userRepo.findOne({
         where: { id: payload.id },
-        relations: ['roles'],
+        relations: ['userRoles', 'userRoles.role'],
       });
+
+      console.log('fullUser', fullUser);
+
+      if (!fullUser) throw new NotFoundException('user not founds');
 
       request['user'] = fullUser;
     } catch {

@@ -8,9 +8,11 @@ import {
   JoinTable,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from 'src/modules/users/users.entity';
 import { PermissionEnum } from 'src/enums/permission.enum';
+import { UserRole } from './user-roles.entity';
 
 
 registerEnumType(PermissionEnum, {
@@ -41,7 +43,8 @@ export class Role {
   })
   permissions: PermissionEnum[];
 
-  @Field(() => [User], { nullable: true })
-  @ManyToMany(() => User, (user) => user.roles)
-  users?: User[];
+  @Field(() => [UserRole], { nullable: true })
+@OneToMany(() => UserRole, (userRole) => userRole.role)
+userRoles: UserRole[];
+
 }
