@@ -40,7 +40,6 @@ export class AuthGuard implements CanActivate {
         relations: ['userRoles', 'userRoles.role'],
       });
 
-      console.log('fullUser', fullUser);
 
       if (!fullUser) throw new NotFoundException('user not founds');
 

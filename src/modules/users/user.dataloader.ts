@@ -14,32 +14,31 @@ export class UserRolesLoader {
 
   createLoader() {
     return new DataLoader<string, Role[]>(async (userIds: string[]) => {
+
       const userRoles = await this.userRoleRepo.find({
-        where: { user: { id: In(userIds) } },
-        select: ['user', 'role'], 
-        relations: ['user', 'role'], 
+        where: { userId: In(userIds) },
       });
-
-      const roleIds = userRoles.map((ur) => ur.role?.id).filter(Boolean);
-
+  
+      const roleIds = userRoles.map((ur) => ur.roleId).filter(Boolean);
+  
       const roles = await this.roleRepo.find({
         where: { id: In(roleIds) },
       });
-
+  
       const roleMap = new Map(roles.map((r) => [r.id, r]));
-
+  
       const rolesMap: Record<string, Role[]> = {};
-      userIds.forEach((id) => (rolesMap[id] = []));
-
+      userIds.forEach((id) => (rolesMap[id] = [])); 
+  
       userRoles.forEach((ur) => {
-        const userId = ur.user?.id;
-        const role = roleMap.get(ur.role?.id);
-        if (userId && role) {
-          rolesMap[userId].push(role);
+        const role = roleMap.get(ur.roleId);
+        if (role) {
+          rolesMap[ur.userId].push(role);
         }
       });
-
+  
       return userIds.map((id) => rolesMap[id]);
     });
   }
+  
 }
